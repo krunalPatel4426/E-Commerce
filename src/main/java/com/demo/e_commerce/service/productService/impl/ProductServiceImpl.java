@@ -16,7 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +42,7 @@ public class ProductServiceImpl implements ProductService {
                         dto.setName(d.getName());
                         dto.setPrice(d.getPrice());
                         dto.setAvailable(d.getQuantity() > 0 ? true : false);
+                        dto.setQuantity(d.getQuantity());
                         return dto;
                     }).collect(Collectors.toList());
 
@@ -84,4 +88,35 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("Something went wrong. Please try again");
         }
     }
+
+    @Override
+    public ResponseEntity<?> getFilteredProduct(String search, Long categoryId, BigDecimal minPrice, BigDecimal maxPrice, String sortBy, String sortDir, int page, int size) {
+        int limit = size;
+        int offset = (page - 1) * size; // Convert 1-based page to 0-based offset
+
+        // 2. Call Manual Native Query
+        List<GetAllDataProjection> products = productRepository.getFilteredProductsManual(
+                search,
+                categoryId,
+                minPrice,
+                maxPrice,
+                sortBy,
+                sortDir,
+                limit,
+                offset
+        );
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Filtered products fetched");
+        response.put("data", products);
+
+        // Metadata for frontend pagination
+        response.put("page", page);
+        response.put("size", size);
+
+        return ResponseEntity.ok(response);
+    }
+
+
 }

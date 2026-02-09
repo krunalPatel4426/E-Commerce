@@ -2,7 +2,9 @@ package com.demo.e_commerce.repository.categoryrepo;
 
 import com.demo.e_commerce.dto.categories.projections.GetAllCategoriesProjection;
 import com.demo.e_commerce.model.CategoryEntity;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -21,4 +23,11 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
     FROM categories c WHERE c.is_deleted = 0;
 """)
     List<GetAllCategoriesProjection> getAllCategories();
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = """
+        UPDATE categories set is_deleted = 1 where id = :id;
+""")
+    int deleteCategoryById(Long id);
 }

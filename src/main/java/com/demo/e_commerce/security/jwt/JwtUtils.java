@@ -69,4 +69,15 @@ public class JwtUtils {
         }
         return false;
     }
+
+    public List<String> getRolesFromJwtToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        // This depends on how you stored the roles in the JWT during generation
+        return claims.get("roles", List.class);
+    }
 }

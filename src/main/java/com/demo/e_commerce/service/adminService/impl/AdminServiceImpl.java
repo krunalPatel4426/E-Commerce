@@ -99,9 +99,14 @@ public class AdminServiceImpl implements AdminService {
                 throw new MissingDataException("Category Id is Empty");
             }
 
-            if (addProductDto.getPrice().compareTo(BigDecimal.ZERO) < 0){
+            if (addProductDto.getPrice().compareTo(BigDecimal.ZERO) <= 0){
                 throw new NegativePriceException("Price is Negative or Zero");
             }
+
+            if(addProductDto.getStockQuantity() <= 0){
+                throw new NegativePriceException("Stock Quantity is Negative or Zero");
+            }
+
             CategoryEntity  categoryEntity = categoryRepository.findByIdAndIsDeleted(addProductDto.getCategoryId(), 0)
                     .orElseThrow(() -> new CategoryNotFound("Category with id " + addProductDto.getCategoryId() + " Not Found"));
             ProductEntity productEntity = new ProductEntity();
@@ -217,6 +222,31 @@ public class AdminServiceImpl implements AdminService {
         }catch (Exception e){
             logger.error("System Error: {}", e.getMessage());
             throw new RuntimeException("Something went wrong while deleting the product");
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> deleteCategory(Long id) {
+        try{
+            if(id == null || id <= 0){
+                throw new MissingDataException("Category Id is Empty or invalid");
+            }
+
+            int change = categoryRepository.deleteCategoryById(id);
+            if(change == 0){
+                throw new NotFoundException("Category with id " + id + " Not Found");
+            }
+
+            CommonDto commonDto = new CommonDto();
+            commonDto.setMessage("Category Deleted Successfully");
+            commonDto.setSuccess(true);
+            return ResponseEntity.ok(commonDto);
+
+        }catch (MissingDataException | NotFoundException e){
+            throw e;
+        }catch (Exception e){
+            logger.error("System Error: {}", e.getMessage());
+            throw new RuntimeException("Something went wrong while deleting the category");
         }
     }
 

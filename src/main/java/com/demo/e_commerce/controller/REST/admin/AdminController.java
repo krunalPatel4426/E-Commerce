@@ -23,11 +23,16 @@ public class AdminController {
         return adminService.createCategory(addCategoryDto);
     }
 
-
     @PutMapping("/categories/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody AddCategoryDto addCategoryDto) {
         return adminService.updateCategory(id, addCategoryDto);
+    }
+
+    @DeleteMapping("/categories/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
+        return adminService.deleteCategory(id);
     }
 
     @PostMapping("/products")

@@ -17,4 +17,6 @@ public interface AdminService {
     ResponseEntity<?> updateProduct(Long productId, AddProductDto addProductDto);
 
     ResponseEntity<?> deleteProduct(Long productId);
+
+    ResponseEntity<?> deleteCategory(Long id);
 }

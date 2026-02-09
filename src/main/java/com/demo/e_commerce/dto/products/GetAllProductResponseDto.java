@@ -10,5 +10,6 @@ public class GetAllProductResponseDto {
     private String name;
     private BigDecimal price;
     private String categoryName;
+    private Integer quantity;
     private boolean isAvailable;
 }

@@ -58,7 +58,14 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                                .requestMatchers("/api/auth/**", "/api/products/**", "/hello", "/webapp/WEB-INF/views/**").permitAll() // Open Login/Register
+                                .requestMatchers("/js/**","/api/auth/**","/auth/**",
+                                        "/api/products/**","/api/products", "/",
+                                        "/webapp/WEB-INF/views/**",
+                                        "/admin/**",
+                                        "/product/**",
+                                        "/cart/**",
+                                        "/orders/**",
+                                        "/api/categories/").permitAll() // Open Login/Register
                                 .requestMatchers("/api/test/**").permitAll()
 
                                 // STRICT ADMIN RULE:
