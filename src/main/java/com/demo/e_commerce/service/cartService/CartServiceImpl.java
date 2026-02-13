@@ -107,7 +107,7 @@ public class CartServiceImpl implements CartService {
             cartItemsRepository.save(cartItemEntity);
 
             //Updating quantity
-            product.setStockQuantity(product.getStockQuantity()- request.getQuantity());
+//            product.setStockQuantity(product.getStockQuantity()- request.getQuantity());
             productRepository.save(product);
 
 //            int updatedRow = cartRepository.updateTotalAmount(cart.getId());
@@ -192,8 +192,7 @@ public class CartServiceImpl implements CartService {
 
             cart.setTotalAmount(cart.getTotalAmount().add(differenceAmount));
 
-            product.setStockQuantity(product.getStockQuantity() - quantity);
-
+//            product.setStockQuantity(product.getStockQuantity() - quantity);
             productRepository.save(product);
             cartItemsRepository.save(cartItem);
             cartRepository.save(cart);
@@ -225,6 +224,7 @@ public class CartServiceImpl implements CartService {
             return new ResponseEntity<>(dto, HttpStatus.OK);
 
         }catch (MissingDataException | NotFoundException | DBError | InvalidQunatityException | UnauthorizedException e){
+            System.out.println(e.getMessage());
             throw e;
         }catch (Exception e){
             logger.error("Error : {}", e.getMessage());
@@ -268,7 +268,7 @@ public class CartServiceImpl implements CartService {
             cart.setTotalAmount(cart.getTotalAmount().add(differenceAmount));
 
             //SUB quantity from product to update
-            product.setStockQuantity(product.getStockQuantity() - quantity);
+//            product.setStockQuantity(product.getStockQuantity() - quantity);
 
             productRepository.save(product);
             cartItemsRepository.deleteById(cartItemId);

@@ -70,3 +70,14 @@ function renderOrderDetail(order) {
 function formatCurrency(amount) {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
 }
+window.addEventListener('pageshow', function(event) {
+    // persisted is true if the page was loaded from the browser cache
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        console.log("Back button detected. Refreshing data...");
+        // Option A: Force a full reload to trigger your JSP logic/API
+        window.location.reload();
+
+        // Option B: Manually call your stock-updating API here via fetch/AJAX
+        // updateStockQuantity();
+    }
+});

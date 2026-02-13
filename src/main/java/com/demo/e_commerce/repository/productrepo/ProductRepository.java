@@ -47,7 +47,8 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
             c.name as categoryName
         FROM products p 
         LEFT JOIN categories c on c.id = p.category_id
-        WHERE p.is_deleted = 0
+        WHERE p.is_deleted
+         = 0
         AND (:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')))
         AND (:categoryId IS NULL OR p.category_id = :categoryId)
         AND (:minPrice IS NULL OR p.price >= :minPrice)

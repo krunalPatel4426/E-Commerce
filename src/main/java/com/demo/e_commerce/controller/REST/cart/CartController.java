@@ -21,6 +21,7 @@ public class CartController {
 
     @PutMapping("/update")
     public ResponseEntity<?> updateProductInCart(@RequestBody UpdateCartItemRequest request){
+        System.out.println("Working");
         return cartService.updateCartItems(request);
     }
 

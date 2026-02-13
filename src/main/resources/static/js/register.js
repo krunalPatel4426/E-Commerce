@@ -38,8 +38,15 @@ $(document).ready(function() {
                     Swal.fire('Error', response.message, 'error');
                 }
             },
-            error: function() {
-                Swal.fire('Error', 'Registration failed. Try again.', 'error');
+            error: function(xhr) {
+                // Swal.fire('Error', 'Registration failed. Try again.', 'error');
+                let errorMessage = 'Registration failed.'
+                if(xhr.responseJSON && xhr.responseJSON.message){
+                    errorMessage = xhr.responseJSON.message;
+                }else if(xhr.responseText){
+                    errorMessage = xhr.responseText;
+                }
+                Swal.fire('Error', errorMessage, 'error');
             }
         });
     });
@@ -70,3 +77,15 @@ function validatePassword(pass) {
         return true;
     }
 }
+
+window.addEventListener('pageshow', function(event) {
+    // persisted is true if the page was loaded from the browser cache
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        console.log("Back button detected. Refreshing data...");
+        // Option A: Force a full reload to trigger your JSP logic/API
+        window.location.reload();
+
+        // Option B: Manually call your stock-updating API here via fetch/AJAX
+        // updateStockQuantity();
+    }
+});
