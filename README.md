@@ -154,7 +154,7 @@ jwt.expiration=86400000
 Clone the repository and run the application using Maven:
 
 ```bash
-git clone https://github.com/your-username/ecommerce-platform.git
+git clone https://github.com/krunalPatel4426/E-Commerce.git
 cd ecommerce-platform
 mvn clean install
 mvn spring-boot:run
