@@ -60,11 +60,13 @@ public class WebSecurityConfig {
                         auth.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                                 .requestMatchers("/js/**","/api/auth/**","/auth/**",
                                         "/api/products/**","/api/products", "/",
-                                        "/webapp/WEB-INF/views/**",
+                                        "/WEB-INF/views/**",
                                         "/admin/**",
                                         "/product/**",
                                         "/cart/**",
                                         "/orders/**",
+                                        "/design",
+                                        "/hello",
                                         "/api/categories/").permitAll() // Open Login/Register
                                 .requestMatchers("/api/test/**").permitAll()
 

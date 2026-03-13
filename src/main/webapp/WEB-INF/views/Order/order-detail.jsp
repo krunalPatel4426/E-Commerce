@@ -26,9 +26,15 @@
     </div>
 
     <div id="order-content" style="display: none;">
+
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold text-secondary">Order #<span id="o-id"></span> Details</h3>
-            <span class="badge bg-success fs-6" id="o-status"></span>
+            <div>
+                <h3 class="fw-bold text-secondary d-inline-block me-2 mb-0">Order #<span id="o-id"></span> Details</h3>
+                <span class="badge bg-success fs-6 align-top" id="o-status"></span>
+            </div>
+            <button id="btn-download-detail" class="btn btn-outline-primary">
+                <i class="fas fa-file-pdf me-2"></i> Download Invoice
+            </button>
         </div>
 
         <div class="row">

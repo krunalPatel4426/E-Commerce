@@ -51,9 +51,14 @@ function renderOrders(orders) {
                         </div>
                         <div class="text-end">
                             <h4 class="text-primary fw-bold mb-2">${total}</h4>
-                            <a href="/orders/${order.orderId}" class="btn btn-outline-primary btn-sm">
-                                View Details <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
+                            <div>
+                                <button id="dl-btn-${order.orderId}" onclick="downloadInvoice(${order.orderId})" class="btn btn-outline-secondary btn-sm me-1">
+                                    <i class="fas fa-file-pdf"></i> Invoice
+                                </button>
+                                <a href="/orders/${order.orderId}" class="btn btn-outline-primary btn-sm">
+                                    View Details <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -62,14 +67,43 @@ function renderOrders(orders) {
         container.append(html);
     });
 }
+
+// --- NEW SECURED DOWNLOAD LOGIC ---
+function downloadInvoice(orderId) {
+    const btn = $(`#dl-btn-${orderId}`);
+    const originalText = btn.html();
+    btn.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
+
+    fetch('/api/orders/' + orderId + '/bill', {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem("jwtToken") }
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("Failed to download bill");
+            return res.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'TechStore_Invoice_ORD_' + orderId + '.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            btn.html(originalText).prop('disabled', false);
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Failed to download invoice.");
+            btn.html(originalText).prop('disabled', false);
+        });
+}
+
 window.addEventListener('pageshow', function(event) {
-    // persisted is true if the page was loaded from the browser cache
     if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
         console.log("Back button detected. Refreshing data...");
-        // Option A: Force a full reload to trigger your JSP logic/API
         window.location.reload();
-
-        // Option B: Manually call your stock-updating API here via fetch/AJAX
-        // updateStockQuantity();
     }
 });

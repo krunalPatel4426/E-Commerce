@@ -162,10 +162,11 @@ function formatCurrency(amount) {
 }
 
 // CHECKOUT LOGIC
+// CHECKOUT LOGIC in cart.js
+// CHECKOUT LOGIC in cart.js
 function checkout() {
     const userId = localStorage.getItem("userId");
 
-    // Validate we have the necessary IDs
     if (!userId || !currentCartId) {
         Swal.fire('Error', 'Cart information missing. Please refresh the page.', 'error');
         return;
@@ -183,7 +184,7 @@ function checkout() {
         if (result.isConfirmed) {
             Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-            // Call POST /api/orders with userId and cartId
+            // 1. Call POST /api/orders
             $.ajax({
                 url: '/api/orders',
                 type: 'POST',
@@ -195,10 +196,53 @@ function checkout() {
                 }),
                 success: function (response) {
                     if (response.success) {
-                        Swal.fire('Success!', 'Your order has been placed successfully.', 'success')
-                            .then(() => {
-                                window.location.href = '/orders'; // Redirect to Order History
-                            });
+                        const newOrderId = response.data;
+
+                        Swal.fire({
+                            title: 'Order Successful!',
+                            text: 'Your order is placed. Downloading invoice...',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+
+                            // 2. Fetch the PDF as a Blob (so we can pass the Auth header)
+                            fetch('/api/orders/' + newOrderId + '/bill', {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': 'Bearer ' + localStorage.getItem("jwtToken")
+                                }
+                            })
+                                .then(res => {
+                                    if (!res.ok) throw new Error("Failed to download bill");
+                                    return res.blob(); // Convert response to binary Blob
+                                })
+                                .then(blob => {
+                                    // 3. Create a temporary invisible link to trigger the download
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.style.display = 'none';
+                                    a.href = url;
+                                    a.download = 'TechStore_Invoice_ORD_' + newOrderId + '.pdf';
+                                    document.body.appendChild(a);
+
+                                    // Click the link to download, then clean up
+                                    a.click();
+                                    window.URL.revokeObjectURL(url);
+                                    document.body.removeChild(a);
+
+                                    // 4. Redirect to orders page after download starts
+                                    setTimeout(() => {
+                                        window.location.href = '/orders';
+                                    }, 500);
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    Swal.fire('Warning', 'Order placed, but failed to download bill automatically.', 'warning')
+                                        .then(() => window.location.href = '/orders');
+                                });
+                        });
+
                     } else {
                         Swal.fire('Failed', response.message || 'Order creation failed.', 'error');
                     }

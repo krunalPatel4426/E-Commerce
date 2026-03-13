@@ -20,11 +20,14 @@ import com.demo.e_commerce.repository.productrepo.ProductRepository;
 import com.demo.e_commerce.repository.userrepo.UserRepository;
 import com.demo.e_commerce.security.UserDetailsImpl;
 import com.demo.e_commerce.service.orderService.interfaces.OrderService;
+import com.demo.e_commerce.service.reportsService.interfaces.JasperReportService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -56,6 +59,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private CartItemsRepository cartItemsRepository;
+
+    @Autowired
+    private JasperReportService jasperReportService;
 
     @Transactional
     @Override
@@ -124,7 +130,7 @@ public class OrderServiceImpl implements OrderService {
             cartRepository.save(cart);
 
             CommonDto dto = new CommonDto();
-            dto.setData(null);
+            dto.setData(order.getId());
             dto.setMessage("Order created");
             dto.setSuccess(true);
 
@@ -269,6 +275,24 @@ public class OrderServiceImpl implements OrderService {
         }catch (Exception e){
             logger.error("error : {}", e.getMessage());
             throw new RuntimeException("Something went wrong. Please try again later.");
+        }
+    }
+
+    @Override
+    public ResponseEntity<byte[]> downloadBill(Long id) {
+        try {
+            byte[] pdfBytes = jasperReportService.generateInvoice(id);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            // This forces the browser to download the file as an attachment
+            headers.setContentDispositionFormData("attachment", "TechStore_Invoice_ORD_" + id + ".pdf");
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

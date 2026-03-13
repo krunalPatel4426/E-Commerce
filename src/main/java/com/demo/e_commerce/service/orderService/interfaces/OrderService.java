@@ -11,4 +11,6 @@ public interface OrderService {
     ResponseEntity<?> getOrder(Long orderId);
 
     ResponseEntity<?> getAllOrderForUser(Long userId);
+
+    ResponseEntity<byte[]> downloadBill(Long id);
 }

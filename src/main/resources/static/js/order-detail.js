@@ -1,7 +1,6 @@
 // src/main/resources/static/js/order-detail.js
 
 $(document).ready(function () {
-    // Extract Order ID from URL: /order/5 -> 5
     const pathSegments = window.location.pathname.split('/');
     const orderId = pathSegments[pathSegments.length - 1];
 
@@ -37,6 +36,11 @@ function renderOrderDetail(order) {
     $('#o-date').text(new Date(order.orderDate).toLocaleString());
     $('#o-total').text(formatCurrency(order.totalOrderPrice));
 
+    // --- BIND DOWNLOAD BUTTON ---
+    $('#btn-download-detail').off('click').on('click', function() {
+        downloadInvoice(order.orderId, $(this));
+    });
+
     // Items List
     const container = $('#items-container');
     container.empty();
@@ -44,7 +48,6 @@ function renderOrderDetail(order) {
     if(order.orderItem) {
         order.orderItem.forEach(item => {
             const product = item.product;
-            // Display line total price (e.g. 70000 * 2 = 140000)
             const lineTotal = formatCurrency(item.orderItemPrice);
 
             const html = `
@@ -67,17 +70,45 @@ function renderOrderDetail(order) {
     }
 }
 
+// --- NEW SECURED DOWNLOAD LOGIC ---
+function downloadInvoice(orderId, btnElement) {
+    const originalText = btnElement.html();
+    btnElement.html('<i class="fas fa-spinner fa-spin me-2"></i> Downloading...').prop('disabled', true);
+
+    fetch('/api/orders/' + orderId + '/bill', {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem("jwtToken") }
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("Failed to download bill");
+            return res.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'TechStore_Invoice_ORD_' + orderId + '.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            btnElement.html(originalText).prop('disabled', false);
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Failed to download invoice.");
+            btnElement.html(originalText).prop('disabled', false);
+        });
+}
+
 function formatCurrency(amount) {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
 }
+
 window.addEventListener('pageshow', function(event) {
-    // persisted is true if the page was loaded from the browser cache
     if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
         console.log("Back button detected. Refreshing data...");
-        // Option A: Force a full reload to trigger your JSP logic/API
         window.location.reload();
-
-        // Option B: Manually call your stock-updating API here via fetch/AJAX
-        // updateStockQuantity();
     }
 });

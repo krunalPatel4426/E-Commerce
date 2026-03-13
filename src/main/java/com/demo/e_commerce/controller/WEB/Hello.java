@@ -8,10 +8,10 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class Hello {
 
-    @GetMapping("/hello")
+    @GetMapping("/design")
     public ModelAndView index() {
-        System.out.println("Hello World");
-        ModelAndView mv = new ModelAndView("Hello");
+        System.out.println("Working.");
+        ModelAndView mv = new ModelAndView("design/design");
         return mv;
     }
 
