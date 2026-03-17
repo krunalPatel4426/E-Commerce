@@ -4,7 +4,7 @@
 
 This repository contains a full-stack E-Commerce application built with Spring Boot. It utilizes a highly optimized **hybrid architecture**: Spring MVC controllers are used strictly to serve initial JavaServer Pages (JSP), while all dynamic data interactions, form submissions, and state changes are handled asynchronously via RESTful APIs and AJAX.
 
-The system provides a complete suite of services to manage users, products, categories, shopping carts, and orders. It enforces Role-Based Access Control (RBAC) using JWT authentication to securely separate Admin and User capabilities.
+The system provides a complete suite of services to manage users, products, categories, shopping carts, and orders. It enforces Role-Based Access Control (RBAC) using JWT authentication to securely separate Admin and User capabilities. 
 
 ## 🛠️ Technology Stack
 
@@ -13,6 +13,7 @@ The system provides a complete suite of services to manage users, products, cate
 * **Java 17**
 * **Spring Boot 3.x** (Web, Security, Data JPA)
 * **Spring Security & JWT** (JSON Web Tokens)
+* **JasperReports** for dynamic PDF invoice generation
 * **Database:** MySQL / PostgreSQL
 * **Build Tool:** Maven
 
@@ -20,7 +21,8 @@ The system provides a complete suite of services to manage users, products, cate
 
 * **JSP** (JavaServer Pages) for view routing
 * **JavaScript** (AJAX / Fetch API) for asynchronous API calls
-* **HTML5 / CSS3 / Bootstrap**
+* **HTML5 / CSS3 / Bootstrap 5**
+* **Select2** for enhanced, searchable dropdowns
 
 ## ✨ Key Features
 
@@ -33,7 +35,7 @@ The system provides a complete suite of services to manage users, products, cate
 ### 📦 Product & Category Management
 
 * **Admin:** Create, update, and delete products and categories dynamically without page reloads.
-* **User:** Browse all products and categories, and view specific product details.
+* **User:** Browse all products and categories, filter by multiple criteria (search, category, price range, sort), and view specific product details.
 * Automated linking between categories and products (One-to-Many).
 
 ### 🛒 Cart Management
@@ -42,12 +44,13 @@ The system provides a complete suite of services to manage users, products, cate
 * Users can add products, update quantities, and remove items instantly via API calls.
 * Automatic calculation of the total cart amount.
 
-### 🧾 Order Management
+### 🧾 Order Management & Invoicing
 
 * Seamless checkout process converting a User's Cart into a finalized Order.
 * Automatic clearing of the cart upon successful order placement.
 * Order status tracking (`CREATED`, `PAID`, `SHIPPED`, `DELIVERED`).
 * Users can view specific order details and their complete order history.
+* **Automated Invoicing:** Dynamically generates and downloads professional PDF bills using Jasper Reports automatically upon checkout, or on-demand from the order history page.
 
 ---
 
@@ -67,7 +70,7 @@ The application relies on the following core entities and relationships:
 
 ## 📡 REST API Reference
 
-*(All API calls below are consumed by the JSP frontend via AJAX after the initial page load)*
+*(All API calls below are consumed by the JSP frontend via AJAX or Fetch API after the initial page load)*
 
 ### Authentication
 
@@ -80,7 +83,7 @@ The application relies on the following core entities and relationships:
 
 | Method | Endpoint | Description | Access |
 | --- | --- | --- | --- |
-| GET | `/api/products` | Get all products | Public/User |
+| GET | `/api/products/filter` | Get all products with dynamic filters & pagination | Public/User |
 | GET | `/api/products/{id}` | Get product details by ID | Public/User |
 | POST | `/api/admin/products` | Add a new product | Admin |
 | PUT | `/api/admin/products/{id}` | Update existing product | Admin |
@@ -97,18 +100,19 @@ The application relies on the following core entities and relationships:
 
 | Method | Endpoint | Description | Access |
 | --- | --- | --- | --- |
-| GET | `/api/cart` | View current user's cart | User |
+| GET | `/api/cart/{userId}` | View current user's cart | User |
 | POST | `/api/cart/add` | Add product to cart | User |
 | PUT | `/api/cart/update` | Update item quantity | User |
 | DELETE | `/api/cart/remove/{itemId}` | Remove item from cart | User |
 
-### Orders
+### Orders & Invoices
 
 | Method | Endpoint | Description | Access |
 | --- | --- | --- | --- |
 | POST | `/api/orders` | Place order from cart | User |
-| GET | `/api/orders/user` | View order history | User |
+| GET | `/api/orders/user/{userId}` | View order history | User |
 | GET | `/api/orders/{id}` | View specific order details | User |
+| GET | `/api/orders/{id}/bill` | Download order invoice (PDF) | User |
 
 ---
 
@@ -117,6 +121,7 @@ The application relies on the following core entities and relationships:
 * **Hybrid Routing Strategy:** Strict separation between standard `@Controller` classes (which only return `ModelAndView` or view names for JSP rendering) and `@RestController` classes (which strictly process JSON data for the frontend).
 * **Layered Architecture:** Clear separation of concerns using Controllers, Services, and Repositories.
 * **Exception Handling:** Global exception handler (`@ControllerAdvice`) for unified and clean API error JSON responses.
+* **Secure File Downloads:** Utilizing the JavaScript Fetch API to securely pass JWT tokens when requesting binary Blob data (like Jasper PDFs), ensuring endpoints remain fully authenticated.
 
 ---
 
@@ -146,7 +151,6 @@ spring.jpa.show-sql=true
 # JWT Secret
 jwt.secret=your_super_secret_key_for_jwt_generation_make_it_long
 jwt.expiration=86400000
-
 ```
 
 ### 2. Build and Run
@@ -158,7 +162,6 @@ git clone https://github.com/krunalPatel4426/E-Commerce.git
 cd ecommerce-platform
 mvn clean install
 mvn spring-boot:run
-
 ```
 
 The server will start on `http://localhost:8080`.

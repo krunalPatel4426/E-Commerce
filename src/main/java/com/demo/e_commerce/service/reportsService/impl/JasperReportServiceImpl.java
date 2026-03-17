@@ -25,11 +25,11 @@ public class JasperReportServiceImpl implements JasperReportService {
     private OrderRepository orderRepository;
 
     public byte[] generateInvoice(Long orderId) throws JRException, IOException {
-        // 1. Fetch Order from DB
+
         OrderEntity order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // 2. Map Database Items to Jasper Fields
+
         List<InvoiceItemDTO> items = new ArrayList<>();
         for (OrderItemEntity item : order.getOrderItems()) {
             items.add(new InvoiceItemDTO(
